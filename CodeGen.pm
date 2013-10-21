@@ -305,14 +305,14 @@ sub InitializeCodeGenDatabases
 
 my $gCopyRightStr = << "COPYRIGHT__";
 // -----------------------------------------------------------------
-// Original Author: Naresh Appannagaari
+// Original Author: <author>
 // Contents: 
 //     
-// Copyright 2011 ANSYS Inc, All Rights Reserved
+// Copyright <Company>, All Rights Reserved
 // No part of this file may be reproduced, stored in a 
 // retrieval system, or transmitted in any form or by any means -
 // electronic, mechanical, photocopying, recording, or otherwise - 
-// without prior written permission of ANSYS Inc.
+// without prior written permission of <Company>
 // -----------------------------------------------------------------
 COPYRIGHT__
 
