@@ -1,0 +1,1030 @@
+// Utility functions
+// The declatation language specifies that it leverage a utility. Parser generates
+// template code for such utility. The parser also generates the include directives/
+// Dummy stack vars are created for all the parameters needed by utility function
+
+//
+// Category: Standard data structures, algos
+//
+// Scope a pointer
+autoptr: ngcore/ngutils/RefCounter_T.h {
+// Purpose: use auto_ptr to manage lifetime of "Object" allocated on heap
+// Destructor of ObjectAutoPtr will delete "objptr"
+typedef std::auto_ptr<Object> ObjectPtr;
+
+ObjectPtr objPtr = new Object();
+objPtr->SomeMethod(params);
+}
+
+// Refcount a pointer
+refptr,refcountptr: ngcore/ngutils/RefCounter_T.h {
+// Purpose: use RefCounter_T to manage lifetime of shared "Object" 
+// that are allocated on heap i.e. "objptr = new Object"
+// Destructor of ObjectPtr will decrease refcount and possible delete "objptr"
+typedef base::RefCounter_T<Object> ObjectPtr;
+
+ObjectPtr objPtr = new Object();
+objPtr->SomeMethod(params);
+}
+
+timer: ngcore/ngutils/Monitor.h {
+CMonitor mon;
+mon.Start();
+
+// Do something here
+
+// Must stop the monitor in order to obtain elapsed time values
+mon.Stop();
+
+time_t elapsedCpuTimeSecs = mon.GetElapsedCpuTime();
+time_t elapsedRealTimeSecs = mon.GetElapsedRealTime();
+// Same as above, but better resolution
+AnstTimeval elapsedCpuUsecs = {0, 0};
+AnstTimeval elapsedRealUsecs = {0, 0};
+mon.GetElapsedCpuTime(elapsedCpuUsecs);
+mon.GetElapsedRealTime(elapsedRealUsecs);
+
+// After a Stop, Clean can be done before a fresh Start
+mon.Clear();
+
+// Other useful methods 
+// If you want to pause monitor to discount another activity, 
+// call Pause and then Restart after the elapse of the undesired activity
+mon.Pause();
+mon.Restart();
+
+}
+
+datetime: ngcore/profile/ngperformance.h {
+AString GetTimeString(unsigned int options=kStandard);
+AString GetDateString(unsigned int options=kStandard);
+AString GetDateAndTimeString(unsigned int options=kStandard);
+
+// Following are from GeneralFunctions.h
+// Note: AnstTimeval has resolution of microseconds. Has two members: secs, usecs
+
+// retVal of 0 is success. 'startTime' returned
+AnstTimeval startTime = {0, 0};
+int retVal = AnstGetTimeofDay(&startTime, 0 /* AnstTimezone*/);
+
+AnstTimeval currTime = {0, 0};
+int retVal = AnstGetTimeofDay(&currTime, 0 /* AnstTimezone*/);
+
+AnstTimeval diffTime = {0, 0};
+AnstDiffTime(startTime, currTime, diffTime); // void return
+
+// If time has elapsed, startTime is updated to the current timeval
+bool hasTimeElapsed = AnstHasTimeElapsed(startTime, 1000 /*timeSpanInSeconds*/); 
+}
+
+osinfo: ngcore/profile/ngperformance.h {
+AString GetMachineName(unsigned int options=kStandard);
+// Return the O/S version
+AString GetOSVersion(unsigned int options=kStandard);
+// Physical memory info (as a formatted text string)
+AString GetPhysicalMemoryString(unsigned int options=kStandard);
+bool ngprofile::GetProcessorInfo(int& n_processors);
+bool ngprofile::GetPhysicalMemoryInfo(double& avail_phys_memory, double& total_phys_memory);
+size_t ngprofile::GetMemoryUsage();
+time_t ngprofile::GetProcessCpuTime(); // time_t is 64-bit int value
+}
+
+uidatetime: uicore/uiutils/i18nwin32.h {
+AString timeDateStamp = i18n::GetTimeDateStamp(); // requires mainwin on LINUX. Used in message window
+}
+
+namedpropsutil: namedprops {
+
+// constructor
+propsObj = GenericNamedPropertiesObject(itemName, ID of this object, version of owning module);
+
+AString propName;
+// Prop value can be any "Value",std::vector<AString>, io::CBlock
+Value v;
+std::vector<AString> sv;
+io::CBlock b;
+// Enable object's introspection through below. This must be done once per 
+// lifetime of object or until the schema changes
+propsObj.InitializeObjectPropertiesSchema(propName, v or sv or b);
+
+bool success = propsObj.GetPropertyValue(sv, propName);
+success = propsObj.SetPropertyValue(propName, b);
+std::vector<AString>* svPtr = propsObj.GetPropertyValueForEdit(propName);
+SS_ASSERT(svPtr)
+svPtr->push_back(str);
+
+}
+
+rett: none {
+return true;
+}
+
+retf: none {
+return false;
+}
+
+retany: none {
+return ;
+}
+
+booststr2astr: none {
+AString(boost_str.c_str());
+}
+
+stlalgo: algorithm {
+stlv v; 
+v.push_back(e);
+// get num elements (size of container)
+v.size();
+// change num elements
+v.resize(num);
+// get size of allocated storage
+v.capacity();
+// change capacity
+v.reserve(num);
+v.front();
+v.back();
+iterator it = v.erase(itToErase);
+// iteration: begin, end, rbegin, rend
+
+// Queues
+stlq q; 
+q.push_back(e);
+q.push_front(e);
+// returns none. Removes element and invokes destructor
+q.pop_back(e);
+q.pop_front(e);
+// return reference to front element
+q.front();
+q.back();
+
+// Maps
+stlm m;
+}
+
+stlviter: algorithm {
+stlv container;
+std::vector<type>::iterator iter;
+for(iter = container.begin(); iter != container.end(); ++iter)
+  const type& elem = *iter;
+}
+
+riter2fiter: vector {
+// Reverse iterator has a underlying forward iterator obtained
+// by call to 'base' method. This forward iterator always
+// points to one past the current location.
+std::vector<type>::reverse_iterator riter;
+std::vector<type>::iterator fiter = (riter.base() - 1);
+}
+
+stlmalgo: algorithm {
+stlm container;
+// Iteration
+std::map<ktype, vtype>::iterator it;
+for(it = container.begin(); it != container.end(); ++it)
+  const ktype& keyOfElem = it->first;
+  const ktype& valOfElem = it->second;
+
+// Find
+std::map<ktype, vtype>::iterator it = container.find(elem);
+SS_ASSERT(it != container.end());
+valFound = it->second;
+
+// Erase
+container.erase(it);
+
+// Insert element
+container[kval] = eval;
+container.insert(std::pair<ktype,etype>(kval,eval));
+
+// Clear all contents
+container.clear();
+}
+
+stlqiter: algorithm {
+stlq container;
+std::deque<type>::iterator iter;
+for(iter = container.begin(); iter != container.end(); ++iter)
+  const type& elem = *iter;
+}
+
+//
+// Category: NgApp, AnsoftCOM, Threading
+//
+initapp: ngcore/ngcore.h {
+// Critical to call right at the beginning of main function
+CApplicationStartupParams::InitializeStartupParams(argc, argv);
+// SetRegistryKey((LPCTSTR)(i18n::CStr(mRegistryKey))); Message dll REVISIT
+
+// Initialization of ngcore and uicore has been moved ahead so that the messagemanager is ready for security code.
+InitNgcoreDLL(this);
+// InitUicoreDLL(this) is uicore needed? REVISIT
+// m_cmdInfo.GenerateRegistryOverrideFileIfNecessary(RegistryAccess::GetTempDir())
+
+// NOTE: make sure to override IAnsoftApplications methods (e.g. GetVersionedProductExeName) so that the
+// file-based registry uses the right file
+// Override other IAnsoftApplication methods such as GetInstallationDir, etc.
+
+// Initialize message manager
+ThreadMessageManager::InitializeThreadMessageManager(/* logfile; uses default of stdout/stderr */);
+}
+
+appinfo: wbintegutils/ApplicationStartupParams.h {
+// Pre-req before using below object:
+// The main function of app has already invoked CApplicationStartupParams::InitializeStartupParams
+CApplicationStartupParams* prms = CApplicationStartupParams::Get();
+SS_ASSERT(prms);
+str p = prms->GetAppPath();
+p = prms->GetAppNameWExtn();
+p = prms->GetAppNameNoExtn();
+p = prms->GetAppDir();
+p = prms->GetStartWorkingDir();
+p = prms->GetWorkingDirNameWExtn();
+p = prms->GetWorkingDirNameNoExtn();
+
+// Working dir of app at the time below call is made
+p = CApplicationStartupParams::GetCurrWorkingDirOfApp()
+}
+
+initacom: AnsoftCOM/AnsoftCOMFunctions.h {
+acomconfigmgr* configMgr = new AnsoftCOMConfigurationManager(this);
+configMgr->Initialize(AString(argv[0]));
+acomglobinit* ptr = AnsoftCOM::GetAnsoftCOMGlobalsInitializer();
+ptr->SetCOMConfigurationManager(configMgr);
+AnsoftCOM::CoInitialize();
+}
+
+finalacom: AnsoftCOM/AnsoftCOMFunctions.h {
+acomconfigmgr* configMgr = sth;
+delete m_AnsoftCOMConfigMgr;
+m_AnsoftCOMConfigMgr = 0;
+AnsoftCOM::CoFinalize();
+}
+
+schedutils: AnsoftCOM/AnsoftCOMSchedulerUtility.h {
+AnsoftCOMSchedulerUtility* sched = AnsoftCOMSchedulerUtility::Instance();
+SS_ASSERT(sched);
+bool isInSchedEnv = sched->IsProductLaunchedInSchedulerEnvironment();
+std::vector<AString> machines;
+bool ret = sched->GetMachineListAvailableForDistribution(machines);
+SS_ASSERT(ret);
+AString jobID;
+ret = GetThisJobID(jobID);
+SS_ASSERT(ret);
+}
+
+createstub: AnsoftCOM/AnsoftCOMObject.h {
+AnsoftCOMObject<concretestubclass>* stubObj = 0;
+hresult hr = AnsoftCOMObject<concretestubclass>::CreateInstance(&stubObj);
+if (hr != ANS_OK) ZZZ // error;
+stubObj->AddRef();
+}
+
+relstub: AnsoftCOM/AnsoftCOMObject.h {
+hresult hr;
+stubobj->ReleaseInstance();
+stubobj = 0;
+}
+
+writeconnparams: AnsoftCOM/AnsoftCOMDefinitions.h {
+block stubBlock;
+ANS_HRESULT hres = stub->GetCommParamsToMarshall(stubBlock);
+if (hres == ANS_OK)
+// Put block somewhere
+}
+
+// block name: ConnectionParameters
+// Communication sub-block contains (transport type, ip, communicator id, listen port). Sub-block name: CommDetails
+readconnparams: ngcore/streamio/streamio_object.h {
+block stubBlock;
+// Get the above block, from wherever it is persisted
+GetStubBlock(stubBlock);
+}
+
+unmarshallconnparams: AnsoftCOM/AnsoftCOMFunctions.h {
+IAnsoftCOMUnknown* iunknown = 0;
+block stubBlock;
+hresult hr = AnsoftCOM::UnMarshallBlockToInterface(&iunknown, stubBlock);
+if (hr != ANS_OK) ZZZZ //error check;
+
+// Get interface
+ICustomInterface* icint = 0;
+iunknown->GetInterfaceForEdit<ICustomInterface>(&icint);
+SS_ASSERT(icint);
+}
+
+cocreate: AnsoftCOM/AnsoftCOMFunctions.h {
+// Include: AnsoftCOM/AnsoftCOMFunctions.h, AnsoftCOM/AnsoftCOMObject.h 
+IAnsoftCOMUnknown* iunk = 0;
+// Note: argString is typically a packed streamio block object
+AnsoftCOM::CoCreateInstance(&iunk, AnsoftAuthInfo(), ID_IDESKTOPENGINEINTERFACE, ID_DESKTOPENGINEINTERFACEFACTORY,;
+                            ACHAR("sjo7na1l"), ACHAR("desktopproxy"), ACHAR("1.0"), argString = ACHAR(""));
+IDesktopEngineInterface* ideskEng = dynamic_cast<IDesktopEngineInterface*>(iunk);
+SS_ASSERT(ideskEng);
+WBSystemLocInfo locInfo(ACHAR("D:/Program Files (x86)/Ansoft/Maxwell14.0/maxwell.exe"), ACHAR("D:/projs/maxprojs/Solenoid.mxwl"), ACHAR("1"));
+WBSystemDisplayInfo dispInfo(ACHAR("wbsys"), ACHAR("wbproj"));
+LaunchSystemInDesktopCmdDef desktopModelDef(locInfo, dispInfo, ACHAR("sysType"), false, false, true);
+block blk;
+desktopModelDef.Write(blk);
+ideskEng->LaunchDesktop(blk);
+}
+
+//
+// Category: Threading, Synchronization
+//
+
+tlsconstruct: ngcore/ipcutils/OSThreads.h {
+// Declare key that indexes per-thread storage
+pthread_key_t gThreadSpecificKey = 0;
+
+// Define/Create key
+if(pthread_key_create(&gThreadSpecificKey, NULL) != 0);
+  // handle failure
+}
+
+tlsdestruct: ngcore/ipcutils/OSThreads.h {
+// Destruct key. REVISIT: ensure per-thread memory indexed at this key is deleted
+pthread_key_delete(gThreadSpecificKey);
+gThreadSpecificKey = 0;
+}
+
+tlsaccessimpl: ngcore/ipcutils/OSThreads.h {
+// To allow clients to Access per-thread specific storage, use below implementation lines
+T *threadStore = reinterpret_cast<T*>(pthread_getspecific(gThreadSpecificKey));
+if(threadStore);
+  return threadStore;
+
+T* threadStore = create storage;
+pthread_setspecific(gThreadSpecificKey, threadStore);
+return threadStore;
+}
+
+eventutils: ngcore/ipcutils/GeneralFunctions.h {
+// Create event that is in non-signalled state. And requires a manual_reset
+handle desktopExitedEvent = AnstCreateEvent(true, false);
+
+// Wait on multiple events. 'Wait for all' is false below i.e. below thread will wakeup
+// when any of the events is signaled
+handle events[] = { event1, event2 }
+int numEventsToWait = static_cast<int>(sizeof(events)/sizeof(ANSOFTHANDLE));
+int waitStatus = AnstWaitForMultipleObjects(numEventsToWait, events, false, ANST_INFINITE);
+SS_ASSERT(waitStatus != ANST_WAIT_FAILED);
+
+// Return will be ANST_WAIT_TIMEOUT, if you use a finite timeout
+
+// A thread waiting on the above non-signaled event will block until signalled using SetEvent
+bool ret = AnstSetEvent(hEvent);
+// Once signalled, any waits will be unblocked until the event is 'reset' using below
+bool ret = AnstResetEvent(hEvent);
+
+// Handle the signals
+if (waitStatus == ANST_WAIT_OBJECT_0) first event is signalled;
+if (waitStatus == ANST_WAIT_OBJECT_0 + 1) second event is signalled;
+
+// Close the handle to the events
+AnstCloseHandle(event1);
+event1 = INVALID_HANDLE;
+}
+
+threadutils: ngcore/ipcutils/OSThreads.h {
+typedef void* (*PThreadFunPtr)(void* cbData);
+PThreadFunPtr funcptr = some_static_function;
+callbackdata = some_void*_pointer;
+// REVISIT initialization
+pthread_t threadID;
+pthread_create(&threadID, NULL, funcptr, callbackdata);
+
+// Cleanup after thread is done
+// Use the below function to wait for thread termination. Dont cleanup handles or state used 
+// in the thread until pthread_join returns. A return of 0 is success
+pthread_join(threadID, 0);
+}
+
+// Get per-thread message manager
+tmsgmgrget: wbintegutils/ThreadMessageManager.h {
+return ThreadMessageManager::GetMessageManager();
+}
+tmsgmgrinit: wbintegutils/ThreadMessageManager.h {
+ThreadMessageManager::InitializeThreadMessageManager(logfile);
+}
+tmsgmgrdest: wbintegutils/ThreadMessageManager.h {
+ThreadMessageManager::DestroyThreadMessageManager();
+}
+
+//
+// Category: Infrastructure
+// 
+addmsg: CoreInterfaces/IMessageHandler.h {
+IMessageManager* msgMgr = ::GetMessageManager();
+msg am;
+str msgstr;
+msgstr.Format(ACHAR(""))
+am.SetMessageText(msgstr);
+// Possible values of MessageSeverity: kErrorMessage, kWarningMessage, kInfoMessage, kFatalMessage
+MessageSeverity severity = kErrorMessage; 
+am.ChangeSeverity(severity);
+msgMgr->AddAnsoftMessage(am);
+
+IMessageHandlerBase* hdlrBase = msgMgr->GetIMessageHandlerBase();
+MessageQueueRestorer mqueueRestorer(hdlrBase);
+mqueueRestorer.Disable();
+
+IMessageHandler* hndlr = dynamic_cast<IMessageHandler*>(hdlrBase);
+SS_ASSERT(hndlr);
+hndlr->HandleMessages(0/*context*/);
+}
+
+ansdebug: ngcore/ngutils/ans_debug.h {
+::AnsDebug(ACHAR(""), 1, ACHAR("\n"));
+// debug logging is ON for level "1" and file context
+if(my_ans_debug_data.Debug(1) == true)
+}
+
+debugcontext,debuglog,logcontext: wbintegutils/LoggingHelper.h {
+CLoggingHelper logHelp(ACHAR(""));
+logHelp.LogParam(ACHAR(""), );
+}
+
+logparam,logprm: wbintegutils/LoggingHelper.h {
+logHelp.LogParam(ACHAR(""), );
+}
+
+logstring,logstr: wbintegutils/LoggingHelper.h {
+logHelp.LogString(ACHAR(""));
+logHelp.LogString(str);
+}
+
+ansdebugutils: ngcore/ngutils/ans_debug.h {
+// Log all environment variables to debug log file level 1
+AnsDebugLogAllEnvVars(1); 
+int currDLevel = my_ans_debug_data.Level();
+// debug logging is ON for level "1" and file context
+if(my_ans_debug_data.Debug(1) == true)
+}
+
+assert: ngcore/ngutils/assert.hxx {
+SS_ASSERT(!ACHAR(""));
+}
+
+portab: ngcore/common/portab.h, ngcore/common/Win32Types.h {
+}
+
+platform_specifics: ngcore/common/PlatformSpecifics_C++.h {
+}
+
+wintypes: ngcore/common/Win32Types.h {
+}
+
+
+ngregistryoverride: ngcore/registry/AnsoftRegistryOverride.h, AnsoftCOM/AnsoftCOMSchedulerUtility.h {
+AnsoftCOMSchedulerUtility::Instance()->SetRegistryAccessNgTempDir();
+AnsoftRegistryOverride::SetRegistryOverrideFile(batchOptionsFile);
+}
+
+ngregistry,registry: ngcore/registry/RegistryAccessNg.h {
+RegistryAccessNg::GetTempDir();
+}
+
+putenv: ngcore/common/PlatformSpecifics_C++.h {
+// NOTE: each env requires it's own buffer! Don't reuse the same buffer for 2 diff envs
+const int kMaxEnvStrBuffer = 512;
+char* bufferForEnvString = new char[kMaxEnvStrBuffer];
+memset(bufferForEnvString, 0, kMaxEnvStrBuffer);
+
+AString env_str;
+env_str.Format(ACHAR("%s=%s", envName.c_str(), envVal.c_str()));
+strcpy(bufferForEnvString, env_str.ASCII().Str());
+ANSOFT_PUTENV(envstring);
+
+// NOTE: Make sure to copy (rather than reference) orig env value. Putenv releases the original buffer when value is unset
+}
+
+getenv,env: ngcore/stringutils/astring.h {
+static const AChar* envVar = i18n::ACharGetEnv(ACHAR("YOUR_ENV"));
+}
+
+//
+// Category: Platform specifics
+//
+procaddrfromdll,loadlib,getprocaddr,procaddr: ngcore/ipcutils/GeneralFunctions.h {
+anshandleinst libHandle = NULL;
+str libnamewExt = given-lib-name;
+// Unix systems follow a different naming convention for shared libraries and
+// hence more attributes to the name for Unix alone
+#if defined(SUN_ANSOFT) || defined(LINUX_ANSOFT);
+  #ifdef BUILD64;
+    libnamewExt = AString("lib") + libnamewExt + AString("_64.so");
+  #else;
+    libnamewExt = AString("lib") + libnamewExt + AString(".so");
+  #endif;
+#endif;
+
+libHandle = AnstLoadDll(libnamewExt);
+if (libHandle) success;
+
+// Get proc address as below
+void* facInterface = NULL;
+ANSOFTFARPROC pfn = AnstGetProc(libHandle, "name of the function");
+if (pfn) success;
+}
+
+//
+// Category: OS processes
+//
+//
+signalutils: ngcore/ipcutils/GeneralFunctions.h {
+
+// Signal handler function on LINUX
+// Need include: #include <signal.h>
+void (*SIGTERM_Handler_Function) (int signum) sighandler;
+// Signals that can handled:
+// Exit code of a signalled process: 129 to beyond.
+// Exit code is: signal code + 128. For e.g. signal 6
+// implies a exit code of 134
+// SIGTERM (15, exit code = 143), SIGPIPE (13, 141) => termination signal
+// SIGINT (2, interrupt from keyboard), SIGABRT (something bad happened. Handler called
+// just to cleanup), SIGSEGV (invalid memory reference)
+// Signals that will just kill the process and no handler is invoked: SIGKILL, SIGSTOP
+// Registers the handler with the signal SIGTERM
+// REVISIT: see GeneralFunctions.cpp for LINUX specific system includes
+#ifndef PC_ANSOFT;
+/*struct sigaction;
+        void     (*sa_handler)(int);
+        void     (*sa_sigaction)(int, siginfo_t *, void *);
+        sigset_t   sa_mask;
+        int        sa_flags;
+        void     (*sa_restorer)(void);
+*/;
+int sigaction (int signum, const struct sigaction *act, struct sigaction *oldact);
+#endif;
+}
+
+getsystemerror: ngcore/ipcutils/GeneralFunctions.h {
+{
+str errorStr;
+#ifdef PC_ANSOFT;
+  const unsigned int kMaxSize = 200;
+  TCHAR szBuff[kMaxSize]; 
+  memset(szBuff, 0, kMaxSize);
+  ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_MAX_WIDTH_MASK, ;
+                  NULL, ;
+                  errNum,;
+                  0, ;
+                  szBuff, ;
+                  kMaxSize, ;
+                  NULL);
+
+  errorStr = szBuff;
+#else;
+  // this needs testing on linux
+  errorStr = ::strerror(errNum);
+#endif;
+}
+
+sleep: ngcore/common/PlatformSpecifics_C++.h {
+ANSOFT_SLEEP(checkFileInterval in milliseconds);
+}
+
+createprocess: ngcore/ipcutils/GeneralFunctions.h {
+const int numCmdLinesMax = num;
+AString procCmdLine[numCmdLinesMax];
+
+int currCmdLineNum = 0;
+// Make sure to enclose file path in quotes so they can contain spaces
+procCmdLine[currCmdLineNum++] = procExePath;
+procCmdLine[currCmdLineNum++] = ACHAR("\"") + some_path + ACHAR("\"");
+procCmdLine[currCmdLineNum++] = ACHAR("-flag");
+...;
+SS_ASSERT(numCmdLinesMax >= currCmdLineNum);
+
+// Set working directory
+AString workDir = GetWorkingDir;
+handle procHandle = INVALID_HANDLE; // handle to the proc is returned in this;
+int procStatus = AnstCreateProcess2(ACHAR(""), procCmdLine, currCmdLineNum, procHandle, false /* inherit handles */, workDir, ...);
+IMessageManager* mgr = ::GetMessageManager();
+if (procStatus != 0) this is an error ;
+// system error message
+str systemErrStr;
+::GetErrorStringErrorNum(systemErrStr, procStatus) // use from desktopproxy exe;
+
+// Some sleep code
+ANSOFT_SLEEP(checkFileInterval in milliseconds);
+
+// Code that waits for process to exit
+int processExitCode = ANST_STILL_ACTIVE;
+AnstGetProcessExitCode(procHandle, processExitCode);
+if (processExitCode != ANST_STILL_ACTIVE) this branch means that the process has died or doesnt exist on this machine;
+
+// Close handle
+AnstCloseHandle(procHandle);
+procHandle = INVALID_HANDLE;
+}
+
+processid: ngcore/ipcutils/GeneralFunctions.h {
+int procID = static_cast<int>GetCurrentProcessId();
+}
+
+procutils: ngcore/ipcutils/GeneralFunctions.h {
+// Handle to current pocess
+// INFO: on LINUX, procID and prochandle are the same. On Windows, they are different
+handle procHandle = AnstGetCurrentProcess();
+
+// Obtain handle to another process
+// !NOTE! Ensure app should ngapp::EnableAnsoftProcessQueryPrivilege() just once 
+// to ensure it has privileges to query about other processes
+ngapp::EnableAnsoftProcessQueryPrivilege(); 
+ANSOFTHANDLE procHandle = AnstGetProcess(pid);
+// Below is another version that additionally outputs error/debug info
+ANSOFTHANDLE procHandle = ngapp::GetProcessHandleFromProcessID(procID);
+if (procHandle == INVALID_HANDLE) // Error handling code
+
+// Terminate process and children.
+// Return of 0 is success
+AnstTerminateProcessTree(procHandle);
+// Terminate just the process
+AnstTerminateProcess(procHandle);
+
+// Exit code of a process
+// Below must be invoked for all child processes. Otherwise,
+// child processes will be orphaned
+int processExitCode = -1;
+AnstGetProcessExitCode(procHandle, processExitCode);
+
+}
+
+// Category: File system, I/O
+//
+fileexists: ngcore/ngutils/LongFilenameOperations.h {
+lfn lfn(f1); //Note: lfn.Exists returns 1 if exists as a file or something else (could even be a positive number! So must check for 1)
+bool exists = (LFN_Exists(lfn) && !LFN_IsExistingDirectory(lfn));
+}
+
+direxists: ngcore/ngutils/LongFilenameOperations.h {
+lfn lfn(f1);
+bool exists = (LFN_Exists(lfn) && LFN_IsExistingDirectory(lfn));
+}
+
+createdir,dir: ngcore/ngutils/LongFilenameOperations.h {
+lfn dirLfn(dirPath);
+bool bRet = LFN_CreateDirectoryAndParents(dirLfn);
+//bool bRet = LFN_CreateDirectory(dirLfn);
+SS_ASSERT(bRet);
+
+}
+dirwritable: ngcore/ipcutils/GeneralFunctions.h {
+bool ret = AnstIsDirectoryWriteable(dirPath);
+}
+
+dirname,fileutils,properdir: ngcore/ngutils/FileUtilities.h {
+CFileUtilities fu;
+fu.SetProperDirectoryName(dirpath); // on windows, all slashes normalized to backward slashes
+}
+
+splitpath,split: ngcore/ngutils/FileUtilities.h {
+// Removes trailing slahes in the input path and then splits into dir and name
+// portions
+//const AString& pathAndName;
+str path;
+str name;
+CFileUtilities fu;
+fu.SplitPath(pathAndName, path, name);
+// CAUTION: per comments such as below, SpliPath needs improvements
+// Determine the drives (As "SplitPath" doesn't work for "C:\" or "\\Computer\Dir" I handle this directly)
+
+// Make sure to checkout Brads C:\cviews\nappann_core5_view\nextgen\lib\circuitUtils\source\CircuitUtils.cpp
+}
+
+// Below is from circuitutils.cpp
+dirandbasenamesplit,dirandbasename: ngcore/ngutils/FileUtilities.h {
+AString fPath = filePath;
+AString fileName;
+CFileUtilities fileHelper;
+fileHelper.SetToBackSlashes(fPath);
+fileHelper.SplitPath(fPath, directory, fileName);
+if (!directory.empty())
+//{
+     int size = directory.size() - 1;
+     if(directory[size] != APATHSEPARATOR)
+         directory += APATHSEPARATOR;
+//}
+
+AString ext;
+fileHelper.SplitName(fileName, baseFileName, ext);
+}
+
+relativepath: ngcore/ngutils/FileUtilities.h {
+CFileUtilities fu;
+AString relPath = fu.GetRelativePath(baseDirStr, absPathStr);
+}
+
+relpath: ngcore/ngutils/FileUtilities.h {
+CFileUtilities fu;
+AString relPath = fu.GetRelativePath(baseDirStr, absPathStr);
+}
+
+removefile: ngcore/ngutils/LongFilenameOperations.h {
+lfn filelfn;
+Get(filelfn) // populate filelfn;
+if (LFN_DeleteFile(filelfn) == false) error handling;
+}
+
+removedir: ngcore/ngutils/LongFilenameOperations.h {
+lfn dirlfn;
+Get(dirlfn) // populate filelfn;
+// Be careful when deleting directories!!! Instances of code
+// deleting enitre installations, OS exists!
+if (LFN_Delete(dirlfn) == false) error handling;
+}
+
+strtostdout: ngcore/streamio/token_ostream.h {
+// Check if below works
+AString astr;
+std::cout << astr.Serialize().GetBuffer();
+std::cout.flush();       
+}
+
+fileopers: ngcore/ngutils/LongFilenameOperations.h {
+// Listing of all available file, dir operations!
+LFN_IsDirectory // checks just the semantics of the string??;
+LFN_IsExistingDirectory // checks if dir actually exists on the disk;
+
+LFN_CreateDirectory // might not create parent directory;
+LFN_CreateDirectoryAndParents;
+LFN_DeleteDirectoryContents // delete only contents of dir;
+LFN_CopyDirectoryContents;
+
+LFN_MakeFileWritable;
+LFN_Move;
+LFN_Rename;
+LFN_Copy;
+
+LFN_GetSize // return file size in bytes;
+LFN_GetDirectorySize;
+LFN_GetSizeLarge // returns double precision value;
+LFN_GetDirectorySizeLarge;
+
+LFN_GetFreeSpaceLarge // for the entire volume;
+
+LFN_GetCreationTime // works for file or dir;
+LFN_GetLastAccessTime // works for file or dir;
+LFN_GetLastWriteTime // works for file or dir;
+
+LFN_Which;
+}
+
+tempfile: ngcore/ipcutils/GeneralFunctions.h {
+str tempfile;
+bool ret = AnstGetTempFileName(tempfile, destinationDir, extension string (optional), prefix string options);
+}
+
+str2block: ngcore/streamio/block.h {
+str someStr;
+//itemname is important to initialize
+block blk(itemname);
+bool ret = blk.Unpack(someStr);
+}
+
+block2str: ngcore/streamio/block.h {
+str as = blk.Pack();
+// Binary pack
+str bs = blk.BinaryPack();
+}
+
+readfile: ngcore/streamio/token_istream.h {
+// very useful example code: ngcore\streamio\source\test_streamio.cpp
+LongFileName inFileLfn(filePath);
+bool exists = (LFN_Exists(inFileLfn) && !LFN_IsExistingDirectory(inFileLfn));
+if (!exists)
+//{
+  ngapp::ErrorMessage(ngapp::kNgAppFailed, "Read '%s' block failed: File '%s' does not exist", blk.Name(), filePath);
+  return false;
+//}
+
+io::CToken_istream inStream(inFileLfn);
+inStream >> blk;
+if (blk.Found() == false) 
+//{
+  ngapp::ErrorMessage(ngapp::kNgAppFailed, "Read '%s' block failed: Block does not exist in the file '%s'", blk.Name(), filePath);
+  return false;
+//}
+
+AString text;
+// Skip line. (note: it seems like the new line character is excluded from text)
+inStream.NewLine(text);
+
+// Read and trim chars
+inStream.NewLine(text);
+i18n::TrimCntrlCharsFromEnd(text);
+
+// Read lines until end of file
+while(!inStream.AtEof())
+  inStream.NewLine(text);
+}
+
+writefile: ngcore/streamio/token_ostream.h {
+// very useful example code: ngcore\streamio\source\test_streamio.cpp
+LongFileName outFileLfn(filePath);
+io::CToken_ostream outStream(outFileLfn);
+outStream << blk;
+outStream.Close();
+if (outStream.fail())
+//{
+  ngapp::ErrorMessage(ngapp::kNgAppFailed, "Failed to write block '%s' to file '%s'", blk.Name(), filePath);
+  return false;
+//}
+// outStream.Format(false);
+// outStream << io::NewLine;
+}
+
+readobjfromblock: ngcore/streamio/errorConstants.h {
+// NOTE: make sure that the GetItemName of below streamio returns the name of block
+// Typical convention: the block sent into this function is the block
+// corresponding to this streamio_block_object
+strio_block_obj sobj; //streamio block obj to be read
+block myBlock; // this is the block passed into this function by caller
+SS_ASSERT(myBlock.Name() == sobj.GetItemName());
+if (sobj.DoDataExchange(myBlock, true) == io::kNoError) success;
+IMessageManager* mgr = ::GetMessageManager();
+lfn lockFileLfn;
+GetLockFilePath(lockFileLfn);
+token_istream lockFileInStream(lockFileLfn);
+str itemName = connParams.GetItemName();
+blockptr lockBlockPtr(itemName);
+lockFileInStream >> *lockBlockPtr;
+if (lockBlockPtr->Found() == false) handle error;
+// if block is found, use below 
+readerror err = connParams.Read(*lockBlockPtr);
+if (err != io::kNoError) error now during the read;
+}
+
+writeobjtoblock: ngcore/streamio/errorConstants.h {
+strio_block_obj; //streamio block obj to be written
+block myBlock; // this is the block passed into this function by caller
+// Typical convention: the block sent into this function is the block
+// corresponding to this streamio_block_object
+SS_ASSERT(myBlock.Name() == block_obj.GetItemName());
+if (block_obj.Write(myBlock) == true) // success;
+}
+
+blockobj: ngcore/streamio/streamio_object.h {
+io::CStreamio_block_object obj;
+io::CBlock blk;
+SS_ASSERT(blk.Name() == obj.GetItemName) if blk is the persisted form of streamObj (VERIFY)
+}
+
+mutexutils: ngcore/ipcutils/AnsoftMutexContext.h {
+// Constructor invokes pthread_mutex_init. Destructor pthread_mutex_destroy
+// Lock method locks using pthread_mutex_lock and also sets m_OwnerThread member to pthread_self
+AnsoftMutex mtx;
+
+// Constructor/Destructor of context object lock/unlock mutex.
+// When "allowRecursive" is true (typically the case), the same thread 
+// the usage of second/third/all-subsequent-to-first AnsoftMutexContext are 
+// affectively no-op. This way, pseudo-multi-threading becomes possible
+// When "allowRecursive" is false, there is a risk of deadlock
+AnsoftMutexContext mutexCntxt(mtx, /* allowRecursive */ true);
+}
+
+streamio_general: ngcore/streamio/data_exchange.h {
+io::CDelimiter_grammar grammar(ACHAR("()=[]"));
+token_istream in(m_filePathName, grammar);
+in >> io::EatToken >> nInputNum;
+in.SkipToKeyword(kNumInput);
+blockptr blockPtr(blockName);
+inStream >> *blockPtr;
+if (blockPtr->Found() == false) ZZZZ // error;
+
+token_ostream outStream(m_filePathName);
+if (outStream.fail()) ZZZ // handle error;
+outStream.Format(false);
+outStream.Close();
+outStream << io::NewLine;
+}
+
+streamio_token_istream: ngcore/streamio/data_exchange.h {
+io::CDelimiter_grammar grammar(ACHAR("()=[]"));
+token_istream in(m_filePathName, grammar);
+in >> io::EatToken >> nInputNum;
+in.SkipToKeyword(kNumInput);
+blockptr blockPtr(blockName);
+inStream >> *blockPtr;
+if (blockPtr->Found() == false) ZZZZ // error;
+}
+
+streamio_token_ostream: ngcore/streamio/data_exchange.h {
+token_ostream outStream(m_filePathName);
+if (outStream.fail()) ZZZ // handle error;
+outStream.Format(false);
+outStream.Close();
+outStream << io::NewLine;
+}
+
+dataexchange: ngcore/value/io_data_exchange.h {
+// ngcore/streamio/data_exchange.h
+// Concrete streamio_block object: make sure to implement virtual AString GetItemName
+creaderror err;
+err += io::DoDataExchange(block, do_read, kKeepOriginalsStr, m_keepOriginals);
+err += io::DoDataExchange(block, do_read, kBlankPartIDStr, m_blankPartID);
+err += io::DoDataExchangeVec(block, do_read, kEdgeListStr, m_vSelectedEdgeIDs);
+
+block cmdOptionsBlock(ACHAR("CommandLine"));
+cmdOptions_istream >> cmdOptionsBlock;
+
+// Writing of block func
+blockfunc func(kEdgeListStr);
+std::vector<id::BasicID>::const_iterator iter;
+for (iter = m_vSelectedEdgeIDs.begin();iter != m_vSelectedEdgeIDs.end();++iter)
+   func << *iter;
+block << func;
+
+// Reading of block func
+blockfunc func(kEdgeListStr);
+block >> func;
+if (!block.Found()) ZZZ //sth;
+err = io::kNotFound;
+io::CBlock_func::const_list_iterator func_iter = func.begin();
+while (func_iter != func.end());
+if (!func.QueryUnamedValues(func_iter,edgeID)) ;
+
+// STLmap. Similarly Vec, etc. can be done. Works only for containers that contain 
+// simple objects
+std::map<AString, AString, AString::NoCaseLess> strStrMap;
+err += io::DoDataExchangeMap(block, do_read, ACHAR("STLMapBlock"), strStrMap);
+SS_ASSERT(err == io::kNoError);
+RecordError(err);
+return err;
+}
+
+logfileio: ngcore/streamio/token_iostream.h {
+LongFileName lfn(logFilePath);
+mBatchLogStream = new io::CToken_iostream(lfn, io_base::kModeText);
+*mBatchLogStream << io::NoFormat(ACHAR(" "));
+*mBatchLogStream << io::Eol;
+    
+// sample format is:
+// Ansoft HFSS Version 11.1, Build: Apr 11 2008 02:05:20
+// Batch Solve/Save: IF_Filter_Opt_Example_mark.hfss
+AString sDate, sTime;
+GetBuildDateAndTime(sDate, sTime);
+    
+AString str;
+str.Format(ACHAR("%s Version %s, Build: %s %s"),
+                GetFullProductName().c_str(),
+                GetVersionString().c_str(),
+                sDate.c_str(),
+                sTime.c_str());
+
+*mBatchLogStream << io::NoFormat(str);
+*mBatchLogStream << io::Eol;
+
+// display exe location
+*mBatchLogStream << io::NoFormat(ACHAR("Location: "));
+char filePath[MAX_PATH];
+::GetModuleFileName(NULL, filePath, MAX_PATH);    
+*mBatchLogStream << io::NoFormat(AString(filePath));
+*mBatchLogStream << io::Eol;
+
+*mBatchLogStream << io::NoFormat(batchInfo);
+*mBatchLogStream << io::Eol;
+*mBatchLogStream << io::NoFormat(ACHAR("Starting Batch Run: "));
+
+AString timeDateStamp = i18n::GetTimeDateStamp();
+*mBatchLogStream << io::NoFormat(timeDateStamp);
+*mBatchLogStream << io::Eol;
+mBatchLogStream->Stream().flush();
+}
+
+touchfile: ngcore/streamio/token_ostream.h {
+LongFileName newFileLfn;
+SS_ASSERT(!LFN_Exists(newFileLfn));
+io::CToken_ostream outStream(newFileLfn); // Create empty file
+outStream..Close();
+}
+
+readlibrary: uicore/library/StreamioLibPrivate.h {
+
+    LongFileName asolLfn(m_extractionParams.GetDesignNameProp(), GetProjResultsFolder(projLfn.FilePath()));
+    asolLfn.ChangeExt(ACHAR("asol"));
+
+    logHelp.LogParam(ACHAR("asolLfn"), asolLfn.FilePath());
+
+    CStreamioLibPrivate asolLib(asolLfn);
+}
+
+waitforfileordircreate,waitforfile,waitfordir: ngcore/ngutils/LongFilenameOperations.h {
+const int checkFileInterval = 100; // milliseconds
+const int timeOutInSecs = 60;
+const int maxTimeAllowedForFileCreation = timeoutInSecs*1000; // milliseconds
+const int numTries = maxTimeAllowedForFileCreation/checkFileInterval;
+
+bool bFileCreated = false;
+for (int ii = 0; ii < numTries; ++ii)
+//{
+  if (LFN_Exists(lfnFileToWaitOn))
+  //{
+      bFileCreated = true;
+      break;
+  //}
+    ANSOFT_SLEEP(checkFileInterval);
+//}
+}

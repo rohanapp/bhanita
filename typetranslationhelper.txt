@@ -1,0 +1,118 @@
+// Thirdparty
+OpDesc: BoostProgramOptionsDesc, boost/program_options.hpp
+progoptions: BoostProgramOptions, NgAnsoftCOMApp/NgAnsoftCOMAppDefs.h
+positionoptions: BoostProgramPositionalOptions, boost/program_options.hpp
+// REVISIT: support parsing of below
+//progoptions boost::program_options::options_description, boost/program_options.hpp
+//positionoptions boost::program_options::positional_options_description, boost/program_options.hpp
+
+// Category: Standard data structures, algos
+stlq: std::deque<T>, deque
+stlv: std::vector<T>, vector
+stlm: std::map<T1,T2>, map
+strmap: std::map<AString,T,AString::NoCaseLess>, map_str_str
+strvalmap: std::map<AString,Value,AString::NoCaseLess>, map_str_val
+strvec: std::vector<AString>, vector_str
+intvec: std::vector<int>, vector_int
+
+// ngcore and other ng utility references
+tinfo: AnsoftTypeInfo, ngcore/ngutils/AnsoftTypeInfo.h
+char: AChar, ngcore/stringutils/astring.h
+str: AString, ngcore/stringutils/astring.h
+msg: AnsoftMessage, ngcore/messagelibni/AnsoftMessage.h
+msgmgr: IMessageManager, CoreInterfaces/IMessageManager.h
+msghandler: IMessageHandler, CoreInterfaces/IMessageHandler.h
+blockobj: io::CStreamio_block_object, ngcore/streamio/streamio_object.h
+msgqueueres: MessageQueueRestorer, ngcore/messagelibni/MessageQueueRestorer.h
+nprms: GenericNamedPropertiesObject, NgAnsoftCOMApp/GenericNamedPropertiesObject.h
+namedprops: GenericNamedPropertiesObject, NgAnsoftCOMApp/GenericNamedPropertiesObject.h
+envcntxt: EnvironmentVariableContext, wbintegutils/EnvironmentVariableContext.h
+val: Value, ngcore/value/Value.h
+vvals: VariableValues, ngcore/value/VariableValues.h
+valstate: ValueState, ngcore/value/ValueDefs.h
+var: Variable, ngcore/value/Variable.h
+units: UnitDefinition, ngcore/value/Units.h
+id: id::BasicID, ngcore/ngutils/UtilityIds.h
+col: Column, ngcore/column/Column.h
+dcol: DoubleColumn, ngcore/column/DoubleColumn.h
+ccol: ComplexColumn, ngcore/column/ComplexColumn.h
+
+// postngcore
+tc: TraceComponent, postngcore/postprocessing/TraceComponent.h
+tcvec: std::vector<TraceComponent>, vector
+
+// File system, IO
+readerror: io::ReadError, ngcore/streamio/errorConstants.h
+creaderror: io::CReadError, ngcore/streamio/errorConstants.h
+lfn: LongFileName, ngcore/ngutils/LongFileName.h
+token_istream: io::CToken_istream, ngcore/streamio/token_istream.h
+token_ostream: io::CToken_ostream, ngcore/streamio/token_ostream.h
+block: io::CBlock, ngcore/streamio/block.h
+blockptr: io::CBlockPtr, ngcore/streamio/block.h
+blockfunc: io::CBlock_func, ngcore/streamio/block_func.h
+blockfuncptr: io::CBlockFuncPtr, ngcore/streamio/block_func.h
+io_obj: io::CStreamio_block_object, ngcore/streamio/streamio_object.h
+dataexchange: dataexchange, ngcore/streamio/data_exchange.h
+
+// Platform specifics
+anshandleinst: ANSOFTHINSTANCE, ngcore/ipcutils/Definitions.h
+farproc: ANSOFTFARPROC, ngcore/ipcutils/Definitions.h
+handle: ANSOFTHANDLE, ngcore/ipcutils/Definitions.h
+
+// IPC, Threading related
+acomutils: none, AnsoftCOM/AnsoftCOMFunctions.h
+acomutils1: none, AnsoftCOM/AnsoftCOMObject.h
+procutils: none, ngcore/ipcutils/GeneralFunctions.h
+ipcutils: none, ngcore/ipcutils/GeneralFunctions.h
+threadutils: none, ngcore/ipcutils/GeneralFunctions.h
+sched: none, AnsoftCOM/AnsoftCOMSchedulerUtility.h
+acomapp: AnsoftCOMApplication, AnsoftCOM/AnsoftCOMApplication.h
+acomconfigmgr: AnsoftCOMConfigurationManager, AnsoftCOM/AnsoftCOMConfigurationManager.h
+acomglobinit: AnsoftCOMGlobalsInitializer, AnsoftCOM/AnsoftCOMGlobalsInitializer.h
+hres: ANS_HRESULT, AnsoftCOM/AnsoftCOMDefinitions.h
+hresult: ANS_HRESULT, AnsoftCOM/AnsoftCOMDefinitions.h
+thread: ngcore/ipcutils/OSThreads.h, pthread_t
+mutex: AnsoftMutex, ngcore/ipcutils/AnsoftMutexContext.h
+mutexcontext: AnsoftMutexContext, ngcore/ipcutils/AnsoftMutexContext.h
+
+// UI app
+idesk: IDesktop, CoreInterfaces/IDesktop.h
+
+// Ng app
+ngappexports: none, NgAnsoftCOMApp.h
+appprms: CApplicationStartupParams, wbintegutils/ApplicationStartupParams.h
+ngcmd: NgAppAnsoftCommand, NgAnsoftCOMApp/NgAppAnsoftCommand.h
+ngcmddef: NgAppCommandDef, NgAnsoftCOMApp/NgAppCommandDef.h
+ngcmdmsg: AnsoftMessagesForWB, wbintegutils/AnsoftMessagesForWB.h
+ngcmdres: NgAppCommandResult, NgAnsoftCOMApp/NgAppCommandResult.h
+ngcmdprogress: ProgressMessageDef, wbintegutils/ProgressMessageDef.h
+ingcmdcallback: INgAppCommandCallback, NgAnsoftCOMApp/INgAppCommandCallback.h
+ngcmdout: NgAppCommandOutputs, NgAnsoftCOMApp/NgAppCommandOutputs.h
+ngserviceproxy: NgAppDistributedServiceProxy, NgAnsoftCOMApp/NgDistributedServiceProxy.h
+ingserviceproxy: INgAppDistributedServiceProxy, NgAnsoftCOMApp/NgDistributedServiceProxy.h
+ngapp: NgAppAnsoftCOMApplication, NgAnsoftCOMApp/NgAppAnsoftCOMApplication.h
+ngappdefs: NgAnsoftCOMApplicationDefs, NgAnsoftCOMApp/NgAnsoftCOMApplicationDefs.h
+ingappcmdproviderfilter: INgAppCommandProviderFilter, NgAnsoftCOMApp/INgAppCommandProviderFilter.h
+ngappcmdproviderfilter: NgAppCommandProviderFilter, NgAppCommandProviderFilter.h
+ngappcmdline:NgAppProgramOptions, NgAnsoftCOMApp/NgAppProgramOptions.h
+ingappcmdprovider: INgAppCommandProvider, NgAnsoftCOMApp/INgAppCommandProvider.h
+ingappservices: INgAppCommandProvider, NgAnsoftCOMApp/INgAppCommandProvider.h
+ngappdistcommmgr: NgAppDistributedCommMgr, NgAnsoftCOMApp/NgAppDistributedCommMgr.h
+ingappdistcommmgr: INgAppDistributedCommMgr, NgAnsoftCOMApp/INgAppDistributedCommMgr.h
+ngappdsoprms: LargeDSOCommandParams, LargeDSOCommandParams.h
+dsoprovider: LargeScaleDSOCommandProvider, LargeScaleDSOCommandProvider.h
+ngcmdprms: NgAppCommandParameters, NgAnsoftCOMApp/NgAppCommandParameters.h
+ngappmsgmgr: NgAppMessageManager, NgAppMessageManager.h
+ngapputils: ngapp, NgAnsoftCOMApp/NgAnsoftCOMApplicationUtils.h
+onedres: OneDimensionSimulationResults, NgAnsoftCOMApp/OneDimensionSimulationResults.h
+onequant: OneDimensionalQuantity, NgAnsoftCOMApp/OneDimensionalQuantity.h
+mactree2level: DistributedMachineTreeTwoLevel, NgAnsoftCOMApp/DistributedMachineTreeTwoLevel.h
+cmdactivationtopo: NgAppCommandActivationTopology, NgAnsoftCOMApp/NgAppCommandActivationTopology.h
+largedsoprms: PrepareForLargeScaleDSOParams, wbintegutils/PrepareForLargeScaleDSOParams.h
+idjobsimmgr: IDesktopJobSimulationManager, NgAnsoftCOMApp/IDesktopJobSimulationManager.h
+
+// Desktopproxy, WB Integration specifics
+djob: DesktopJobController, DesktopJobController.h
+tmsgmgr: ThreadMessageManager, wbintegutils/ThreadMessageManager.h
+
+
