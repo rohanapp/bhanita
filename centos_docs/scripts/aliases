@@ -1,0 +1,131 @@
+alias src='source /home/nareshapp/.bashrc'
+alias mntviews='sudo mount -t vboxsf Views /home/Views'
+alias mntnd3='sudo mount -t vboxsf networkdisk3 /home/networkdisk3'
+alias mntnd2='sudo mount -t vboxsf networkdisk2 /home/networkdisk2'
+alias mntprojs='sudo mount -t vboxsf projs /home/ansoft_projs'
+alias mntinstalls='sudo mount -t vboxsf installs_extract /home/installs_extract'
+alias cppls='cp /home/ansoft_projs/designerprojs/ibm_dso_deck_02/projfordesktopjob/*.pl .'
+alias s='source'
+alias pscount='ps -ef | grep -i designer.exe | wc -l; ps -ef | grep -i nexxim.exe | wc -l'
+alias pscount='ps -ef | grep -i designer.exe | wc -l; ps -ef | grep -i nexxim.exe | wc -l'
+alias pscountn='ps -ef | grep -i nexxim.exe | wc -l'
+alias pscountd='ps -ef | grep -i designer.exe | wc -l'
+alias setpreload='export LD_PRELOAD=/home/nareshapp/software/clibhooks/Release/libclibhooks.so'
+alias unsetpreload='export LD_PRELOAD='
+alias h='history'
+alias c='clear'
+alias killprocs='perl ~/scripts/killprocs.pl -exclude bash'
+alias echopreload='echo $LD_PRELOAD'
+alias echohooks='echo $STDLIB_HOOK_TARGETS'
+alias unsethooks='export STDLIB_HOOK_TARGETS='
+
+
+function sethooksfunc()
+{
+    export STDLIB_HOOK_TARGETS=$1
+    echo STDLIB_HOOK_TARGETS is set to $STDLIB_HOOK_TARGETS
+}
+alias sethooks='sethooksfunc'
+
+
+alias setldlib='export LD_LIBRARY_PATH=/home/nareshapp/programs/AnsysEM/designer8.0/Linux/EKM/EKM-Connector/bin/Linux64:/home/nareshapp/programs/AnsysEM/designer8.0/Linux/EKM/programs/jre1.6.0_17/lib/amd64/server:/home/nareshapp/programs/AnsysEM/designer8.0/Linux/common/mono/Linux32/lib:/home/nareshapp/programs/AnsysEM/designer8.0/Linux:/home/nareshapp/programs/AnsysEM/designer8.0/Linux/ansoftbin64:/home/nareshapp/programs/AnsysEM/designer8.0/Linux/common/mono/Linux64/lib:/home/nareshapp/programs/AnsysEM/designer8.0/Linux/mainwin540/Linux32/mw/lib-linux:/home/nareshapp/programs/AnsysEM/designer8.0/Linux/mainwin540/Linux32/mw/lib-linux_optimized:/usr/lib:/usr/lib64:/lib:/lib64:/usr/lib64/tls:/home/nareshapp/programs/AnsysEM/designer8.0/Linux/em64t/bin:/home/nareshapp/programs/AnsysEM/designer8.0/Linux/ia32/bin:/home/nareshapp/programs/AnsysEM/designer8.0/Linux/defer:/home/nareshapp/programs/AnsysEM/designer8.0/Linux/ansoftbin64/defer'
+alias unsetldlib='export LD_LIBRARY_PATH='
+alias echoldlib='echo $LD_LIBRARY_PATH'
+
+function procidfunc()
+{
+    perl ~/scripts/procid.pl --procname $1 $2 $3
+}
+alias procid='procidfunc'
+
+# Usage: desgdb <exe-name-without-path> <path-to-core-file>
+function desgdbfunc()
+{
+    gdb ~/programs/AnsysEM/designer8.0/Linux/$1 $2 $3
+}
+alias desgdb='desgdbfunc'
+
+# Usage: nexgdb <path-to-core-file> OR -p <procid>
+function nexgdbfunc()
+{
+    gdb ~/programs/AnsysEM/designer8.0/Linux/nexxim.exe $1 $2
+}
+alias nexgdb='nexgdbfunc'
+
+function desgdbibmfunc()
+{
+    gdb /data0/ansoft/designer8.0/designer8.0/Linux/$1 $2 $3
+}
+alias desgdbibm='desgdbibmfunc'
+
+alias ibmcore='mv ~/programs/AnsysEM/designer8.0 /data0/ansoft/designer8.0/'
+alias localcore='mv /data0/ansoft/designer8.0/designer8.0 ~/programs/AnsysEM/'
+
+alias nexximprocids='procid bash.+nexxim --pattern -ppids'
+
+# Usage: reniceprocs <procname> <nicevalue> <time-period-between-renicing>
+function reniceprocsfunc()
+{
+  perl /home/nareshapp/scripts/reniceprocs.pl --procname $1 --niceval $2 --loop --interval $3
+}
+alias reniceprocs='reniceprocsfunc'
+
+# usage: renicethreads <procid> <niceval>
+function renicethreadsfunc
+{
+  for procid in $1
+  do
+    top -H -p $procid -n 1 -b | perl -ane "system('renice', $2, '-p', '$F[0]') if ($F[0] =~ m/\d+/)"
+  done
+}
+alias renicethreads='renicethreadsfunc'
+
+function commaprocidfunc
+{
+  procid $1 $2 | perl -ane 'print "$F[0],"'
+  echo 0
+}
+alias commaprocid='commaprocidfunc'
+
+alias tmpcores='ls -lrt `find /tmp -name core\* -print`'
+alias tmpcores_exe="tmpcores | perl -ane 'print \`file \$F[@F-1]\`'"
+alias tmpnexcores="tmpcores_exe | grep -i nexxim.exe | perl -F: -ane 'print \"\$F[0]\n\"'"
+
+alias printrun="grep -i 'run number' ~/parsolveoncores_out.txt"
+alias printlastrun='printrun | tail -1'
+
+# Usage: topthreads <comma-separated-procid>
+function topthreadsfunc
+{
+  top -H -p $1
+}
+
+alias topthreads='topthreadsfunc'
+
+# Usage: checkalias <pattern>
+function checkaliasfunc
+{
+  grep -i $1 /home/nareshapp/aliases
+}
+alias checkalias='checkaliasfunc'
+
+function listorphannexximfunc
+{
+
+  procid nexxim.exe -ppids | awk '
+  BEGIN   \
+  {   \
+    FS = ", ";   \
+    while(("procid.pl --procname bash.+nexxim --pattern -ppids" | getline) > 0)   \
+      pproc2grandpar[$1] = $2;   \
+  }   \
+  {   \
+  if (($2 in pproc2grandpar) && (pproc2grandpar[$2] == 1))   \
+      print $1;   \
+  }   \
+  ' |  awk '{ if (NR != 1) printf ",";  printf "%s", $1; } END {printf "\n";}
+'
+}
+
+alias listorphannexxim='listorphannexximfunc'
+
